@@ -1,9 +1,5 @@
 # OMRON 2JCIE-BU Prometheus Exporter
 
-![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/vet5lqplpecmpnqb/2jciebu-exporter?label=DOCKER%20BUILD)
-![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/vet5lqplpecmpnqb/2jciebu-exporter?label=DOCKER%20BUILD)
-
-
 OMRON USB環境センサ [2JCIE-BU](https://www.omron.co.jp/ecb/product-detail?partId=73063)から取得した値を、Prometheusに投入するExporterです。
 
 Dockerコンテナで動作します。
