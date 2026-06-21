@@ -2,12 +2,12 @@
 
 # TARGETARCH によるベースイメージの分岐:
 #   arm (32-bit, arm/v7) → python:3-slim  (dhi.io/python は arm/v7 非対応)
-#   amd64, arm64         → dhi.io/python:3-debian-sfw-ent-dev (DHI ハードニングイメージ)
+#   amd64, arm64         → dhi.io/python:3-debian-sfw-dev (DHI ハードニングイメージ)
 ARG TARGETARCH
 
 FROM python:3-slim AS base-arm
-FROM dhi.io/python:3-debian-sfw-ent-dev AS base-amd64
-FROM dhi.io/python:3-debian-sfw-ent-dev AS base-arm64
+FROM dhi.io/python:3-debian-sfw-dev AS base-amd64
+FROM dhi.io/python:3-debian-sfw-dev AS base-arm64
 
 FROM base-${TARGETARCH}
 WORKDIR /app
