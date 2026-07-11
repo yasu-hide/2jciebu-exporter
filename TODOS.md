@@ -2,16 +2,6 @@
 
 このリポジトリで見つかった、今後対応を検討すべき項目。優先度順ではない。
 
-## 1. main.py起動直後の`sen.open()`失敗クラッシュ
-
-**What:** main.py起動直後、センサ未接続だと`sen.open()`が`SensorSerialError`を投げてプロセスが即時終了する（リトライなし）。
-
-**Why:** ループ内の読み取り失敗には10秒後リトライがあるのに、起動時の接続失敗にはリトライがなく非対称。
-
-**Context:** `if __name__=="__main__":`内`sen.open()`をtry/exceptで囲むか、`docker-compose.yml`のrestartポリシーで十分かを確認するところから始める。
-
-**Depends on:** なし。
-
 ## 2. `Sensor.close()`の無限再帰リトライ
 
 **What:** `sensor.py` `Sensor.close()`は`except serial.SerialException: self.close()`で自己再帰するが上限がない。恒久障害時に`RecursionError`でクラッシュしうる。
