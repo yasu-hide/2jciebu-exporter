@@ -31,6 +31,22 @@ def build_gauges(registry=None):
     }
 
 
+def open_sensor_with_retry(sen, retry_interval=10):
+    """Retry sen.open() on SensorSerialError instead of letting it crash the process.
+
+    Mirrors the same log/sleep/retry behavior the __main__ loop already uses
+    for read failures, so startup connection failures aren't treated
+    differently than in-loop ones.
+    """
+    while True:
+        try:
+            sen.open()
+            return
+        except SensorSerialError:
+            logging.error('Sensor serial error occurred.', exc_info=True)
+            time.sleep(retry_interval)
+
+
 def update_gauges(sen, gauge):
     """One poll cycle: read the sensor and push values into `gauge`.
 
@@ -52,7 +68,7 @@ if __name__ == "__main__":
     sen = Sensor(SENSOR_SERIAL_DEVICE)
     signal.signal(signal.SIGTERM, lambda *args: sen.close())
     signal.signal(signal.SIGINT, lambda *args: sen.close())
-    sen.open()
+    open_sensor_with_retry(sen)
     try:
         while sen.isopen():
             try:

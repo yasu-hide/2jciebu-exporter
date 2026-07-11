@@ -62,6 +62,22 @@ def test_update_gauges_propagates_sensor_serial_error(gauge):
         main.update_gauges(sen, gauge)
 
 
+def test_open_sensor_with_retry_succeeds_immediately():
+    sen = MagicMock()
+    main.open_sensor_with_retry(sen)
+    sen.open.assert_called_once()
+
+
+def test_open_sensor_with_retry_retries_on_sensor_serial_error(monkeypatch):
+    sleep_calls = []
+    monkeypatch.setattr(main.time, 'sleep', lambda s: sleep_calls.append(s))
+    sen = MagicMock()
+    sen.open.side_effect = [SensorSerialError('boom'), SensorSerialError('boom'), None]
+    main.open_sensor_with_retry(sen)
+    assert sen.open.call_count == 3
+    assert sleep_calls == [10, 10]
+
+
 def test_import_main_has_no_side_effects():
     result = subprocess.run(
         [sys.executable, '-c',
