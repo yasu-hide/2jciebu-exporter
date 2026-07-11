@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/github/yasu-hide/2jciebu-exporter/graph/badge.svg?token=WXLDQA4OY0)](https://codecov.io/github/yasu-hide/2jciebu-exporter)
+
 # OMRON 2JCIE-BU Prometheus Exporter
 
 OMRON USB環境センサ [2JCIE-BU](https://www.omron.co.jp/ecb/product-detail?partId=73063)から取得した値を、Prometheusに投入するExporterです。
