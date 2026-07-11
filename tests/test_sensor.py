@@ -19,8 +19,8 @@ from tests.conftest import READ_FIXTURE_BYTES, READ_FIXTURE_EXPECTED
         (bytearray([0x00]), bytearray([0xbf, 0x40])),
     ],
 )
-def test_get_command(buf, expected_crc):
-    result = Sensor._get_command(None, buf)
+def test_get_command(sensor, buf, expected_crc):
+    result = sensor._get_command(buf)
     assert result == buf + expected_crc
     assert len(result) == len(buf) + 2
     assert result[:len(buf)] == buf
@@ -53,7 +53,7 @@ def test_open_normal(sensor, mock_port):
     sensor.isopened = False
     result = sensor.open()
     mock_port.write.assert_called_once_with(
-        Sensor._get_command(None, Sensor.SENSOR_NORMALLY_ON)
+        sensor._get_command(Sensor.SENSOR_NORMALLY_ON)
     )
     assert sensor.isopened is True
     assert result == mock_port.read.return_value
@@ -91,7 +91,7 @@ def test_close_normal(sensor, mock_port):
     mock_port.is_open = True
     sensor.close()
     mock_port.write.assert_called_once_with(
-        Sensor._get_command(None, Sensor.SENSOR_NORMALLY_OFF)
+        sensor._get_command(Sensor.SENSOR_NORMALLY_OFF)
     )
     assert sensor.isopened is False
 
@@ -152,7 +152,7 @@ def test_read_serial_exception_after_open_is_swallowed(sensor, mock_port):
     sensor.isopened = True
     mock_port.is_open = True
 
-    read_command = bytes(Sensor._get_command(None, Sensor.SENSOR_READ))
+    read_command = bytes(sensor._get_command(Sensor.SENSOR_READ))
 
     def write_side_effect(data):
         if bytes(data).startswith(read_command[:len(Sensor.SENSOR_READ)]):

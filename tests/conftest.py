@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import MagicMock, patch
-import serial
 from sensor import Sensor
 
 READ_FIXTURE_HEX = "aaaaaaaaaaaaaaaaf6097c17f40140420f00d7117b00c8018f1b0e0b0223007b00d7110000000000000000000000000000000000000000000000"
