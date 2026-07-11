@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 import serial
 
@@ -109,6 +111,20 @@ def test_close_retries_once_then_succeeds(sensor, mock_port):
     sensor.close()
     assert mock_port.write.call_count == 2
     assert sensor.isopened is False
+
+
+def test_close_gives_up_after_retry_limit(sensor, mock_port, caplog):
+    mock_port.write.side_effect = serial.SerialException('permanent')
+    sensor.isopened = True
+    mock_port.is_open = True
+
+    with caplog.at_level(logging.ERROR):
+        result = sensor.close()
+
+    assert result is None
+    assert mock_port.write.call_count == Sensor.CLOSE_MAX_RETRIES
+    assert sensor.isopened is False
+    assert any(record.levelno == logging.ERROR for record in caplog.records)
 
 
 # ---------------------------------------------------------------------------

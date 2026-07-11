@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 import serial
 import sys, time
+import logging
 
-TO_INT = lambda s: int(s.encode('hex'), 16)
 class SensorSerialError(serial.SerialException): pass
 class Sensor:
     SENSOR_NORMALLY_ON = bytearray([0x52, 0x42, 0x0a, 0x00, 0x02, 0x11, 0x51, 0x01, 0x00, 0x00, 0xff, 0x00])
     SENSOR_NORMALLY_OFF = bytearray([0x52, 0x42, 0x0a, 0x00, 0x02, 0x11, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00])
     SENSOR_READ = bytearray([0x52, 0x42, 0x05, 0x00, 0x01, 0x21, 0x50])
     SENSOR_LATEST_DATA_LONG_LEN = 54 + 4
+    CLOSE_MAX_RETRIES = 3
     def __init__(self, device='/dev/ttyUSB0', speed=115200, databit=serial.EIGHTBITS, parity=serial.PARITY_NONE):
         self.serial = serial.Serial(device, speed, databit, parity)
         self.isopened = False
@@ -43,15 +44,26 @@ class Sensor:
     def close(self):
         if not self.isopen():
             return
-        try:
-            command = self._get_command(self.SENSOR_NORMALLY_OFF)
-            self.serial.write(command)
-            time.sleep(0.5)
-            self.isopened = False
-            return self.serial.read(self.serial.inWaiting())
-        except serial.SerialException:
-            # Retry
-            self.close()
+        attempt = 0
+        last_error = None
+        while attempt < self.CLOSE_MAX_RETRIES:
+            attempt += 1
+            try:
+                command = self._get_command(self.SENSOR_NORMALLY_OFF)
+                self.serial.write(command)
+                time.sleep(0.5)
+                self.isopened = False
+                return self.serial.read(self.serial.inWaiting())
+            except serial.SerialException as e:
+                last_error = e
+                # Retry
+        # 上限到達: ポートを強制クローズ扱いにし、例外は握りつぶす
+        self.isopened = False
+        logging.error(
+            'Failed to close sensor after %d attempts.',
+            self.CLOSE_MAX_RETRIES,
+            exc_info=last_error,
+        )
         return
     def read(self):
         if not self.isopen():
