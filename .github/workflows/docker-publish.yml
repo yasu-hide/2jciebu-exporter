@@ -4,11 +4,21 @@ on:
   push:
     branches:
       - master
+    paths:
+      - Dockerfile
+      - main.py
+      - sensor.py
+      - requirements.txt
     tags:
       - 'v*'
   pull_request:
     branches:
       - master
+    paths:
+      - Dockerfile
+      - main.py
+      - sensor.py
+      - requirements.txt
 
 permissions:
   contents: read
